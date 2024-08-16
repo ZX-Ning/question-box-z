@@ -1,0 +1,28 @@
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+RUN mkdir build && cd build \
+    && apt-get update \
+    && apt-get install -y curl \
+    && curl -J -L -O  https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh \
+    && bash nodesource_setup.sh \
+    && apt-get install -y dotnet-sdk-8.0 nodejs \
+    && apt-get clean \
+    && cd /app && rm -rf build
+
+COPY . .
+
+RUN cd ./QuestionBox.Client \
+    && yes|npx pnpm install \
+    && cd ../QuestionBox.Server \
+    && dotnet build -c release
+
+EXPOSE 80 443
+
+CMD cd ./QuestionBox.Client \
+    && npx vite build \
+    && cd ../QuestionBox.Server \
+    && dotnet run -c release --environment Production

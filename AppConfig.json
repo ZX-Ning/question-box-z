@@ -1,0 +1,20 @@
+{
+    "ServerDevUrl": "http://localhost:50001/",
+    "ApiUrl": "API_URL",
+    "ServerProductionUrl": "http://localhost:8081",
+    "SqlitePath": "./db/data.db",
+    "Mysql": {
+        "UsingMysql": false,
+        "server": "localhost",
+        "port": 3306,
+        "user": "questionbox",
+        "password": "PASSWORD",
+        "db": "QuestionBox"
+    },
+    "QuestionLengthLimit": 600,
+    "User": {
+        "name" : "USER NAME",
+        "avatar": "",
+        "description": "DESCRIPTION"
+    }
+}
