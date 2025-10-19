@@ -1,41 +1,48 @@
-namespace QuestionBox.Server.DataBase;
+namespace QuestionBox.DataBase;
+
 using Microsoft.EntityFrameworkCore;
-using QuestionBox.Server.Models;
+using QuestionBox.Models;
 
 
 public interface IDataProvider {
-    public Task<QuestionWithTime[]> GetAnsweredQuestionsAsync();
-    public Task AddQuestionAsync(QuestionWithTime question, string? ipAddr);
+    public Task<List<QuestionModel>> GetAnsweredQuestionsAsync();
+    public Task AddQuestionAsync(QuestionModel question);
 }
 
-public class SqliteDataProvider: IDataProvider {
-    QuestionDbContext dbContext;
-    public SqliteDataProvider(QuestionDbContext dbContext) {
-        this.dbContext = dbContext;
+public abstract class DefaultDataProvider : IDataProvider {
+    protected abstract QuestionDbContextBase DbContext { get; }
+    public virtual async Task AddQuestionAsync(QuestionModel q) {
+        await DbContext.questions.AddAsync(q);
+        await DbContext.SaveChangesAsync();
+    }
+    public virtual async Task<List<QuestionModel>> GetAnsweredQuestionsAsync() {
+        List<QuestionModel> questions = await DbContext.questions
+            .Where(q => q.Answer != null)
+            .OrderByDescending(q => q.AnswerTime!)
+            .ThenByDescending(q => q.QuestionTime!)
+            .ToListAsync();
+
+        return questions.ToList();
+    }
+}
+
+public sealed class SqliteDataProvider : DefaultDataProvider {
+    QuestionDbContextBase _dbContext;
+    protected override QuestionDbContextBase DbContext => _dbContext;
+    public SqliteDataProvider(QuestionDbContextBase dbContext) {
+        this._dbContext = dbContext;
         dbContext.Database.EnsureCreated();
-        dbContext.Database.GetDbConnection();
+        dbContext.Database.ExecuteSqlRaw("PRAGMA journal_mode = 'DELETE';");
     }
-    public async Task AddQuestionAsync(QuestionWithTime q, string? ipAddr) {
-        await dbContext.questions.AddAsync(new QuestionDbItem() {
-            question = q.question,
-            answer = q.answer,
-            questionTime = q.questionTime,
-            answerTime = q.answerTime,
-            ipAddr = ipAddr
-        });
-        await dbContext.SaveChangesAsync();
-    }
-    public Task<QuestionWithTime[]> GetAnsweredQuestionsAsync() {
-        return dbContext.questions
-            .Where(q => q.answer != null)
-            .OrderByDescending(q => q.answerTime!)
-            .ThenByDescending(q => q.questionTime)
-            .Select(q => new QuestionWithTime(
-                q.question,
-                q.questionTime,
-                q.answer!,
-                q.answerTime!
-            ))
-            .ToArrayAsync();
+}
+
+public sealed class MysqlDataProvider : DefaultDataProvider {
+    QuestionDbContextBase _dbContext;
+
+    protected override QuestionDbContextBase DbContext => _dbContext;
+
+    public MysqlDataProvider(QuestionDbContextBase dbContext) {
+        this._dbContext = dbContext;
+        dbContext.Database.EnsureCreated();
     }
 }

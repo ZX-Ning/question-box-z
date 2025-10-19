@@ -1,35 +1,44 @@
-namespace QuestionBox.Server.DataBase;
+namespace QuestionBox.DataBase;
+
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using QuestionBox.Server.Models;
-using QuestionBoxl;
+using QuestionBox.Models;
 
-public abstract class QuestionDbContext : DbContext {
-    public abstract DbSet<QuestionDbItem> questions { get; set; }
+public abstract class QuestionDbContextBase : DbContext {
+    public abstract DbSet<QuestionModel> questions { get; set; }
 }
 
-public class QuestionsSqliteDbContext(
+public sealed class QuestionsSqliteDbContext(
     IFileProvider fileProvider,
     AppConfig appConfig
-) : QuestionDbContext {
-    public override DbSet<QuestionDbItem> questions { get; set; }
-    public string DbPath { get => fileProvider.GetFileInfo(appConfig.Config.SqlitePath).PhysicalPath!; }
+) : QuestionDbContextBase {
+    public override DbSet<QuestionModel> questions { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        optionsBuilder.UseSqlite($"Data Source={DbPath};");
+        string dbPath = fileProvider
+            .GetFileInfo(appConfig.Config["SqlitePath"]!.GetValue<string>())
+            .PhysicalPath!;
+        optionsBuilder
+            .UseSqlite($"Data Source={dbPath}")
+            .UseLowerCaseNamingConvention();
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        modelBuilder.Entity<QuestionDbItem>();
+        modelBuilder.Entity<QuestionModel>();
     }
 }
 
-public class QuestionsMariaDbContext (AppConfig appConfig) : QuestionDbContext {
-    public override DbSet<QuestionDbItem> questions { get; set; }
+public sealed class QuestionsMysqlDbContext(AppConfig appConfig) : QuestionDbContextBase {
+    public override DbSet<QuestionModel> questions { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        var config = appConfig.Config.Mysql;
+        JsonNode config = appConfig.Config["Mysql"]!;
         optionsBuilder
-            .UseMySql(
-                $"server={config.server};port={config.port};user={config.user};password={config.password};database={config.db}",
-                new MariaDbServerVersion("10.6.18")
-            );
+            .UseMySQL(string.Concat(
+                $"server={config["server"]};",
+                $"port={config["port"]};",
+                $"user={config["user"]};",
+                $"password={config["password"]};",
+                $"database={config["db"]};"
+            ))
+            .UseLowerCaseNamingConvention();
     }
 }

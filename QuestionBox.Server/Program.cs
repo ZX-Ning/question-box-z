@@ -1,6 +1,6 @@
 using Microsoft.Extensions.FileProviders;
-using QuestionBox.Server.DataBase;
-using QuestionBoxl;
+using QuestionBox;
+using QuestionBox.DataBase;
 
 var rootDir = Directory.GetParent(Directory.GetCurrentDirectory())!.ToString();
 
@@ -11,20 +11,23 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
 var fileProvider = new PhysicalFileProvider(rootDir);
 var appConfig = new AppConfig(fileProvider);
 
-builder.Services.AddControllers();
-builder.Services.AddSingleton<IDataProvider, SqliteDataProvider>();
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton<IFileProvider>(fileProvider);
 
-if (appConfig.Config.Mysql.UsingMysql) {
-    builder.Services.AddDbContext<QuestionDbContext, QuestionsMariaDbContext>(ServiceLifetime.Singleton);
+if (appConfig.Config["Mysql"]!["UsingMysql"]!.GetValue<bool>()) {
+    builder.Services.AddDbContext<QuestionDbContextBase, QuestionsMysqlDbContext>(ServiceLifetime.Singleton);
+    builder.Services.AddSingleton<IDataProvider, MysqlDataProvider>();
 }
 else {
-    builder.Services.AddDbContext<QuestionDbContext, QuestionsSqliteDbContext>(ServiceLifetime.Singleton);
+    builder.Services.AddDbContext<QuestionDbContextBase, QuestionsSqliteDbContext>(ServiceLifetime.Singleton);
+    builder.Services.AddSingleton<IDataProvider, SqliteDataProvider>();
 }
 
+builder.Services.AddControllers();
+
+//allow cors when in development mode
 if (builder.Environment.IsDevelopment()) {
-    builder.WebHost.UseUrls(appConfig.Config.ServerDevUrl);
+    builder.WebHost.UseUrls(appConfig.Config["ServerDevUrl"]!.GetValue<string>());
     builder.Services.AddCors(options => {
         options.AddPolicy(
             name: "AllowAll",
@@ -35,16 +38,20 @@ if (builder.Environment.IsDevelopment()) {
                     .AllowAnyMethod();
             });
     });
+    builder.Services.AddOpenApi();
 }
-else {
-    builder.WebHost.UseUrls(appConfig.Config.ServerProductionUrl);
+if (builder.Environment.IsProduction()) {
+    builder.WebHost.UseUrls(appConfig.Config["ServerProductionUrl"]!.GetValue<string>());
 }
 
 var app = builder.Build();
-
-app.UseCors("AllowAll");
 app.MapControllers();
-if (!app.Environment.IsDevelopment()) {
+app.UseCors();
+
+if (app.Environment.IsDevelopment()) {
+    app.MapOpenApi();
+}
+if (app.Environment.IsProduction()) {
     app.UseDefaultFiles();
     app.UseStaticFiles();
 }

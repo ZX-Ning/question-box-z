@@ -1,28 +1,32 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
-using QuestionBox.Server.DataBase;
-using QuestionBox.Server.Models;
+using QuestionBox.DataBase;
+using QuestionBox.Models;
 
-namespace QuestionBox.AddControllers;
+namespace QuestionBox.Controllers;
 
 [ApiController]
 [Route("/api/questions")]
-public class QuestionsController(IDataProvider dataProvider) : ControllerBase {
+public sealed class QuestionsController(IDataProvider dataProvider) : ControllerBase {
+    public record struct QuestionWrapper(string question);
+    public record struct QuestionDto(
+        int index,
+        string question,
+        string answer,
+        string questionTime,
+        string? answerTime
+    );
 
     [HttpGet]
-    public async Task<JsonArray> Get() {
-        var questions = await dataProvider.GetAnsweredQuestionsAsync();
-        var nodes = questions.Select((q, i) => {
-            var jsonObj = JsonSerializer.SerializeToNode(q)!.AsObject();
-            jsonObj.Add("index", i);
-            return jsonObj;
-        })
-        .ToArray();
-        return new JsonArray(nodes);
+    public async Task<IEnumerable<QuestionDto>> Get() {
+        List<QuestionModel> data = await dataProvider.GetAnsweredQuestionsAsync();
+        return data
+            .Select((q, i)
+                => new QuestionDto(i, q.Question, q.Answer!, q.QuestionTime, q.AnswerTime)
+            );
     }
+
     [HttpPost]
-    public async void Post([FromBody] Question question) {
+    public async void Post([FromBody] QuestionWrapper question) {
         var date = DateTime.Now;
         string ip;
         // Console.WriteLine(JsonSerializer.Serialize(HttpContext.Request.Headers));
@@ -32,10 +36,11 @@ public class QuestionsController(IDataProvider dataProvider) : ControllerBase {
         else {
             ip = HttpContext.Connection.RemoteIpAddress!.ToString();
         }
-        QuestionWithTime q = new() {
-            question = question.question,
-            questionTime = date.ToString("yyyy-MM-dd"),
+        QuestionModel q = new() {
+            IpAddr = ip,
+            Question = question.question,
+            QuestionTime = date.ToString("yyyy-MM-dd"),
         };
-        await dataProvider.AddQuestionAsync(q, ip);
+        await dataProvider.AddQuestionAsync(q);
     }
 }

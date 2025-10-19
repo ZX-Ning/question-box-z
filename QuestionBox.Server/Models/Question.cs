@@ -2,23 +2,16 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace QuestionBox.Server.Models;
+namespace QuestionBox.Models;
 
 [Table("questions")]
-[PrimaryKey(nameof(id))]
-public class QuestionDbItem {
+[PrimaryKey(nameof(Id))]
+public class QuestionModel {
     [Key]
-    public int id { get; }
-    public required string question { get; set; }
-    public required string questionTime { get; set; }
-    public string? answer { get; set; }
-    public string? answerTime { get; set; }
-    public string? ipAddr { get; set; }
+    public int Id { get; }
+    public required string Question { get; init; }
+    public required string QuestionTime { get; init; }
+    public string? Answer { get; init; }
+    public string? AnswerTime { get; init; }
+    public string? IpAddr { get; init; }
 }
-public record struct Question(string question);
-public record struct QuestionWithTime(
-    string question,
-    string questionTime,
-    string? answer,
-    string? answerTime
-);
