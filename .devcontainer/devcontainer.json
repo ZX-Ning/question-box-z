@@ -14,18 +14,26 @@
     "containerEnv": {
         "SHELL": "/usr/bin/fish"
     },
+    "remoteEnv": {
+        "GIT_EDITOR": "code --wait"
+    },
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {},
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     "forwardPorts": [],
     // Uncomment the next line to run commands after the container is created.
-    "postCreateCommand": "",
-    "postStartCommand": "cd /workspaces/question-box-z/QuestionBox.Client && pnpm install",
+    "postCreateCommand": {
+        "npm-install": "cd /workspaces/question-box-z/QuestionBox.Client && pnpm install",
+        "dotnet-restore": "cd /workspaces/question-box-z/QuestionBox.Server && dotnet restore"
+    },
     // Configure tool-specific properties.
     // "customizations": {},
     // Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
     "remoteUser": "root",
     "updateRemoteUserUID": true,
+    "otherPortsAttributes": {
+        "onAutoForward": "ignore"
+    },
     "customizations": {
         "vscode": {
             "extensions": [

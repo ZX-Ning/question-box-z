@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuestionBox.Data;
 using QuestionBox.Models;
 using System.Text.Json;
@@ -8,8 +9,8 @@ namespace QuestionBox.Controllers;
 [ApiController]
 [Route("/api/questions")]
 public sealed class QuestionsController(
-    IDataProvider dataProvider,
-    ILogger<QuestionsController> logger
+    ILogger<QuestionsController> logger,
+    QuestionDbContext dbContext
 ) : ControllerBase {
     public record struct QuestionWrapper(string question);
     public record struct QuestionDto(
@@ -22,8 +23,14 @@ public sealed class QuestionsController(
 
     [HttpGet]
     public async Task<IEnumerable<QuestionDto>> Get() {
-        List<QuestionModel> data = await dataProvider.GetAnsweredQuestionsAsync();
+        List<QuestionModel> data = await dbContext.questions
+            .Where(q => q.Answer != null)
+            .OrderByDescending(q => q.AnswerTime!)
+            .ThenByDescending(q => q.QuestionTime!)
+            .ToListAsync();
+
         logger.LogDebug(JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+
         List<QuestionDto> questions = data
             .Select((q, i)
                 => new QuestionDto(i, q.Question, q.Answer!, q.QuestionTime, q.AnswerTime)
@@ -33,7 +40,7 @@ public sealed class QuestionsController(
     }
 
     [HttpPost]
-    public async void Post([FromBody] QuestionWrapper question) {
+    public async Task<IActionResult> Post([FromBody] QuestionWrapper question) {
         var date = DateTime.Now;
         string ip;
         if (HttpContext.Request.Headers.TryGetValue("Cf-Connecting-Ip", out var x)) {
@@ -42,11 +49,12 @@ public sealed class QuestionsController(
         else {
             ip = HttpContext.Connection.RemoteIpAddress!.ToString();
         }
-        QuestionModel q = new() {
+        await dbContext.questions.AddAsync(new QuestionModel {
             IpAddr = ip,
             Question = question.question,
             QuestionTime = date.ToString("yyyy-MM-dd"),
-        };
-        await dataProvider.AddQuestionAsync(q);
+        });
+        await dbContext.SaveChangesAsync();
+        return Ok();
     }
 }

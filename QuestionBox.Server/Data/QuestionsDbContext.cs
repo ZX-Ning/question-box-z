@@ -7,25 +7,27 @@ using QuestionBox.Models;
 
 public abstract class QuestionDbContext : DbContext {
     public abstract required DbSet<QuestionModel> questions { get; set; }
-    public virtual void postAction() {
+    public virtual void onAppStart() {
         // do nothing default
     }
 }
 
 public sealed class QuestionsSqliteDbContext(
     IFileProvider fileProvider,
-    AppConfig appConfig
+    IConfiguration config
 ) : QuestionDbContext {
     public override required DbSet<QuestionModel> questions { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        string? path = config["SqlitePath"];
+        ArgumentNullException.ThrowIfNull(path);
         string dbPath = fileProvider
-            .GetFileInfo(appConfig.Config["SqlitePath"]!.GetValue<string>())
+            .GetFileInfo(path)
             .PhysicalPath!;
         optionsBuilder
             .UseSqlite($"Data Source={dbPath}")
             .UseLowerCaseNamingConvention();
     }
-    public override void postAction() {
+    public override void onAppStart() {
         Database.EnsureCreated();
         Database.ExecuteSqlRaw("PRAGMA journal_mode = 'DELETE';");
         Database.ExecuteSqlRaw("PRAGMA encoding = \"UTF-8\"");
@@ -33,7 +35,7 @@ public sealed class QuestionsSqliteDbContext(
 
 }
 
-public sealed class QuestionsPostgresDbContext(AppConfig appConfig) : QuestionDbContext {
+public sealed class QuestionsPostgresDbContext(IConfiguration config) : QuestionDbContext {
     public override required DbSet<QuestionModel> questions { get; set; }
     private record struct PgConfig(
         bool UsingPg,
@@ -48,13 +50,13 @@ public sealed class QuestionsPostgresDbContext(AppConfig appConfig) : QuestionDb
     };
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        PgConfig config = appConfig.Config["Postgres"]!.Deserialize<PgConfig>();
+        PgConfig pgConfig = config.GetSection("Postgres").Get<PgConfig>();
         optionsBuilder
-            .UseNpgsql(config.connectionStr)
+            .UseNpgsql(pgConfig.connectionStr)
             .UseLowerCaseNamingConvention();
     }
     
-    public override void postAction() {
+    public override void onAppStart() {
         Database.EnsureCreated();
     }
 }

@@ -14,18 +14,23 @@ static class Program {
         builder.Logging.AddConsole();
 
         var fileProvider = new PhysicalFileProvider(rootDir);
-        var appConfig = new AppConfig(fileProvider);
-        builder.Services.AddSingleton(appConfig);
+        // var appConfig = new AppConfig(fileProvider);
+
+        builder.Configuration.AddJsonFile(Path.Combine(rootDir, "AppConfig.json"), optional: false, reloadOnChange: true);
         builder.Services.AddSingleton<IFileProvider>(fileProvider);
 
-        if (appConfig.Config["Postgres"]!["UsingPg"]!.GetValue<bool>()) {
+        var config = builder.Configuration;
+        ILogger logger = builder.Services
+                        .BuildServiceProvider().GetService<ILoggerFactory>()!.CreateLogger("Builder");
+
+        if (config.GetSection("Postgres:UsingPg").Get<bool>()) {
+            logger.LogInformation("Using configured Postgress database");
             builder.Services.AddDbContext<QuestionDbContext, QuestionsPostgresDbContext>();
         }
         else {
+            logger.LogInformation("Using sqlite database with configured file path");
             builder.Services.AddDbContext<QuestionDbContext, QuestionsSqliteDbContext>();
         }
-        builder.Services.AddScoped<IDataProvider, DatabaseDataProvider>();
-
         builder.Services.AddControllers();
 
         //allow cors when in development mode
@@ -40,15 +45,14 @@ static class Program {
                             .AllowAnyMethod();
                     });
             });
-            builder.WebHost.UseUrls(appConfig.Config["ServerDevUrl"]!.GetValue<string>());
+            builder.WebHost.UseUrls(config["ServerDevUrl"]!);
             // builder.Services.AddOpenApi();
         }
         if (builder.Environment.IsProduction()) {
-            builder.WebHost.UseUrls(appConfig.Config["ServerProductionUrl"]!.GetValue<string>());
+            builder.WebHost.UseUrls(config["ServerProductionUrl"]!);
         }
         return builder;
     }
-
     public static void Main(/*string[] args*/) {
         WebApplication app = builder().Build();
         app.MapControllers();
@@ -56,8 +60,8 @@ static class Program {
 
         using (var scope = app.Services.CreateScope()) {
             var db = scope.ServiceProvider.GetRequiredService<QuestionDbContext>();
-            db.postAction();
-        }   
+            db.onAppStart();
+        }
 
         if (app.Environment.IsDevelopment()) {
             app.MapOpenApi();
