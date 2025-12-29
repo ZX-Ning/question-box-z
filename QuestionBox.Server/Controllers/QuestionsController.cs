@@ -1,12 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
-using QuestionBox.DataBase;
+using QuestionBox.Data;
 using QuestionBox.Models;
+using System.Text.Json;
 
 namespace QuestionBox.Controllers;
 
 [ApiController]
 [Route("/api/questions")]
-public sealed class QuestionsController(IDataProvider dataProvider) : ControllerBase {
+public sealed class QuestionsController(
+    IDataProvider dataProvider,
+    ILogger<QuestionsController> logger
+) : ControllerBase {
     public record struct QuestionWrapper(string question);
     public record struct QuestionDto(
         int index,
@@ -19,17 +23,19 @@ public sealed class QuestionsController(IDataProvider dataProvider) : Controller
     [HttpGet]
     public async Task<IEnumerable<QuestionDto>> Get() {
         List<QuestionModel> data = await dataProvider.GetAnsweredQuestionsAsync();
-        return data
+        logger.LogDebug(JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+        List<QuestionDto> questions = data
             .Select((q, i)
                 => new QuestionDto(i, q.Question, q.Answer!, q.QuestionTime, q.AnswerTime)
-            );
+            )
+            .ToList();
+        return questions;
     }
 
     [HttpPost]
     public async void Post([FromBody] QuestionWrapper question) {
         var date = DateTime.Now;
         string ip;
-        // Console.WriteLine(JsonSerializer.Serialize(HttpContext.Request.Headers));
         if (HttpContext.Request.Headers.TryGetValue("Cf-Connecting-Ip", out var x)) {
             ip = x.ToString();
         }

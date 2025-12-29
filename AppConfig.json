@@ -3,18 +3,18 @@
     "ApiUrl": "API_URL",
     "ServerProductionUrl": "http://localhost:8081",
     "SqlitePath": "./db/data.db",
-    "Mysql": {
-        "UsingMysql": false,
+    "Postgres": {
+        "UsingPg": true,
         "server": "localhost",
-        "port": 3306,
-        "user": "questionbox",
-        "password": "PASSWORD",
-        "db": "QuestionBox"
+        "port": 5432,
+        "user": "questionbox_server",
+        "password": "7654321@",
+        "db": "question_box"
     },
     "QuestionLengthLimit": 600,
     "User": {
-        "name" : "USER NAME",
-        "avatar": "",
-        "description": "DESCRIPTION"
+        "name": "ZX NING",
+        "avatar": "https://www.zxning.com/avatar.jpg",
+        "description": "This is a demo of my personal Q&A box. \n这是我的测试用个人提问箱"
     }
 }
