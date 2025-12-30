@@ -6,4 +6,4 @@ const serverUrl =
     : appConfig.ApiUrl;
 
 console.log(serverUrl);
-export const questionApiUrl = serverUrl + "api/questions";
+export const questionApiUrl =  "api/questions";

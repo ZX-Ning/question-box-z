@@ -1,10 +1,11 @@
 {
     "ServerDevUrl": "http://localhost:50001/",
-    "ApiUrl": "API_URL",
     "ServerProductionUrl": "http://localhost:8081",
+    // sqlite db path is UsingPg is false
     "SqlitePath": "./db/data.db",
     "Postgres": {
-        "UsingPg": true,
+        // set to true to use pg, otherwise sqlite will be used.
+        "UsingPg": false,
         "server": "localhost",
         "port": 5432,
         "user": "questionbox_server",
@@ -16,5 +17,12 @@
         "name": "ZX NING",
         "avatar": "https://www.zxning.com/avatar.jpg",
         "description": "This is a demo of my personal Q&A box. \n这是我的测试用个人提问箱"
+    },
+    "Admin": {
+        "username": "admin",
+        // Hashed password
+        // Base64(SHA3_256(password)), this is the hash with passwd as "password"
+        // Generate hash with https://gchq.github.io/CyberChef/#recipe=SHA3('256')From_Hex('None')To_Base64('A-Za-z0-9%2B/%3D')&input=cGFzc3dvcmQ
+        "password": "wAZ9SvTofwDbrGO2FWgoI3BZFy0bvqxnQnNF1qn9pIQ="
     }
 }

@@ -1,23 +1,26 @@
 namespace QuestionBox;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.FileProviders;
 using QuestionBox.Data;
 
 static class Program {
-    static WebApplicationBuilder builder() {
+    static WebApplicationBuilder builder(string[] args) {
         var rootDir = Directory.GetParent(Directory.GetCurrentDirectory())!.ToString();
 
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
-            WebRootPath = Path.Combine(rootDir, "QuestionBox.Client/dist")
+            Args = args,
+            WebRootPath = Path.Combine(rootDir, "dist"),
         });
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
 
-        var fileProvider = new PhysicalFileProvider(rootDir);
-        // var appConfig = new AppConfig(fileProvider);
-
-        builder.Configuration.AddJsonFile(Path.Combine(rootDir, "AppConfig.json"), optional: false, reloadOnChange: true);
-        builder.Services.AddSingleton<IFileProvider>(fileProvider);
+        builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(rootDir));
+        builder.Configuration.AddJsonFile(
+            Path.Combine(rootDir, "AppConfig.jsonc"), optional: false, reloadOnChange: true
+        );
+        builder.Services.AddSingleton<LoginChecker>();
 
         var config = builder.Configuration;
         ILogger logger = builder.Services
@@ -31,32 +34,53 @@ static class Program {
             logger.LogInformation("Using sqlite database with configured file path");
             builder.Services.AddDbContext<QuestionDbContext, QuestionsSqliteDbContext>();
         }
+
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo("/var/aspnet/keys/"))
+            .SetApplicationName("Question-Box-Z"); ;
+
+        builder.Services.AddAuthentication(
+            CookieAuthenticationDefaults.AuthenticationScheme
+        ).AddCookie(options => {
+            options.ExpireTimeSpan = TimeSpan.FromHours(1);
+            options.SlidingExpiration = true;
+            options.Cookie.HttpOnly = true;
+            options.Events.OnRedirectToLogin = context => {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context => {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+        });
+
         builder.Services.AddControllers();
 
         //allow cors when in development mode
         if (builder.Environment.IsDevelopment()) {
             builder.Services.AddCors(options => {
                 options.AddPolicy(
-                    name: "AllowAll",
+                    name: "default",
                     policy => {
                         policy
                             .AllowAnyHeader()
-                            .AllowAnyOrigin()
-                            .AllowAnyMethod();
+                            .AllowAnyMethod()
+                            .AllowCredentials();
                     });
             });
             builder.WebHost.UseUrls(config["ServerDevUrl"]!);
-            // builder.Services.AddOpenApi();
+            builder.Services.AddOpenApi();
         }
         if (builder.Environment.IsProduction()) {
             builder.WebHost.UseUrls(config["ServerProductionUrl"]!);
         }
         return builder;
     }
-    public static void Main(/*string[] args*/) {
-        WebApplication app = builder().Build();
+    public static void Main(string[] args) {
+        WebApplication app = builder(args).Build();
         app.MapControllers();
-        app.UseCors("AllowAll");
+        app.UseCors("default");
 
         using (var scope = app.Services.CreateScope()) {
             var db = scope.ServiceProvider.GetRequiredService<QuestionDbContext>();
@@ -70,6 +94,8 @@ static class Program {
             app.UseDefaultFiles();
             app.UseStaticFiles();
         }
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.Logger.LogInformation("Starting Server, Environment: " + app.Environment.EnvironmentName);
         app.Run();
     }

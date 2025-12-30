@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionBox.Data;
@@ -22,7 +23,7 @@ public sealed class QuestionsController(
     );
 
     [HttpGet]
-    public async Task<IEnumerable<QuestionDto>> Get() {
+    public async Task<List<QuestionDto>> Get() {
         List<QuestionModel> data = await dbContext.questions
             .Where(q => q.Answer != null)
             .OrderByDescending(q => q.AnswerTime!)
@@ -57,4 +58,11 @@ public sealed class QuestionsController(
         await dbContext.SaveChangesAsync();
         return Ok();
     }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<List<QuestionModel>> GetAllQuestions() {
+        return await dbContext.questions.ToListAsync();
+    }
+
 }
