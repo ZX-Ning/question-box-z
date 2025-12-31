@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { User } from "../../../AppConfig.json"
 import MessageEdit from "./SubComponents/MessageEdit.vue";
 import Footer from "./SubComponents/Footer.vue";
 const props = defineProps(["showFooter"]);
+const user = CONFIG["User"];
 </script>
 
 <template>
@@ -16,12 +16,12 @@ const props = defineProps(["showFooter"]);
       ]"
     >
       <img
-        :src="User.avatar"
+        :src="user.avatar"
         class="inline-block rounded-full max-h-[72px] max-w-[72px] aspect-square"
       />
-      <p class="text-2xl font-medium">{{ User.name }}</p>
+      <p class="text-2xl font-medium">{{ user.name }}</p>
       <p class="text-[0.96rem] italic whitespace-pre-line">
-          {{ User.description }}
+          {{ user.description }}
       </p>
       <MessageEdit />
     </div>

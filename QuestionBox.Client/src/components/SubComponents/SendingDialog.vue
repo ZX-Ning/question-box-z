@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import axios from "axios";
-import { questionApiUrl } from "../../config";
 import { type Ref, ref } from "vue";
 import Dialog from "../BasicComponents/Dialog.vue";
 import Button from "../BasicComponents/Button.vue";
@@ -14,7 +13,7 @@ async function onSubmit() {
   sendingState.value = "Pending";
   try {
     const msg = props.message;
-    await axios.post(questionApiUrl, { question: msg });
+    await axios.post(API_URL, { question: msg });
     sendingState.value = "Success";
   } catch (err) {
     sendingState.value = "Error";

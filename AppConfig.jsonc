@@ -20,8 +20,7 @@
     },
     "Admin": {
         "username": "admin",
-        // Hashed password
-        // Base64(SHA3_256(password)), this is the hash with passwd as "password"
+        // Hashed password, using Base64(SHA3_256(password))
         // Generate hash with https://gchq.github.io/CyberChef/#recipe=SHA3('256')From_Hex('None')To_Base64('A-Za-z0-9%2B/%3D')&input=cGFzc3dvcmQ
         "password": "wAZ9SvTofwDbrGO2FWgoI3BZFy0bvqxnQnNF1qn9pIQ="
     }

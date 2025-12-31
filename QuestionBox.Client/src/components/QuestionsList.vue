@@ -10,7 +10,7 @@ import { Icon } from "@iconify/vue";
 import Spinner from "./BasicComponents/Spinner.vue";
 import axios, { AxiosError } from "axios";
 import { type Ref, ref, onMounted } from "vue";
-import { questionApiUrl } from "../config.ts";
+
 
 type QuestionWithIndex = {
   index: number;
@@ -25,7 +25,7 @@ const questionFetchErrors: Ref<string | null> = ref(null);
 
 async function getQuestions() {
   try {
-    questions.value = (await axios.get(questionApiUrl)).data;
+    questions.value = (await axios.get(API_URL)).data;
   } catch (err) {
     if (err instanceof AxiosError) {
       questionFetchErrors.value = err.message;

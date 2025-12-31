@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import * as AppConfig from "../../../../AppConfig.json";
 import SendingDialog from "./SendingDialog.vue";
 
-const charaterLimit = AppConfig.QuestionLengthLimit;
+const charaterLimit = CONFIG["QuestionLengthLimit"];
 const interval = {};
 let changedSinceLastSave = false;
 const message = ref("");
