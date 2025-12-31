@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Noto+Sans+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Noto+Sans+Display:ital,wght@0,100..900;1,100..900&family=Noto+Sans+SC:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,5 +7,8 @@
 @layer utilities {
   .better-scroll {
     @apply [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:rounded-3xl [&::-webkit-scrollbar-thumb]:rounded-3xl [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500;
+  }
+  .link {
+    @apply text-blue-600 hover:text-blue-500 decoration-2 hover:underline focus:outline-none focus:underline hover:opacity-85;
   }
 }

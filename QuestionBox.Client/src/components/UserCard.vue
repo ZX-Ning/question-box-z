@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import MessageEdit from "./SubComponents/MessageEdit.vue";
-import Footer from "./SubComponents/Footer.vue";
 const props = defineProps(["showFooter"]);
 const user = CONFIG["User"];
 </script>
 
 <template>
-  <div class="flex flex-col flex-grow-0 lg:max-h-full lg:min-w-[30%] lg:h-full justify-between">
+  <div class="flex flex-col lg:max-h-full lg:min-w-[30%] lg:max-w-[50%] justify-between">
     <div
       :class="[
-        'shrink w-full max-h-full lg:max-w-[700px] p-6',
+        'flex-auto lg:max-w-[700px] p-6',
         'flex flex-col items-center gap-2',
         'bg-white border shadow-md rounded-xl',
         'dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70',
@@ -25,9 +24,6 @@ const user = CONFIG["User"];
       </p>
       <MessageEdit />
     </div>
-    <template v-if="props.showFooter">
-      <Footer />
-    </template>
   </div>
 </template>
 

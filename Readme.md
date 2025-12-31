@@ -13,11 +13,11 @@ Demo site: https://q.zxning.com/ (Currently down for maintenance)
 ### Tech Stack:
 - Server: C# with ASP.NET 
 - Data: SQLite or PostgreSQL (Configurable)
-- Frontend: Typescript, Vue, Tailwindcss, Radixvue
+- Frontend: Typescript, Vue, Vue Router, Tailwindcss, Radixvue, Preline UI
 
 ### Some features:
 - Responsive layout, worked for all screen sizes.
 - Auto save the editing message (in local storage), and auto load when reopened.
     
 ### WIP:
-- Admin Ui for answering the questions.
+- More advanced admin Ui for editing the answers.

@@ -11,7 +11,6 @@ import Spinner from "./BasicComponents/Spinner.vue";
 import axios, { AxiosError } from "axios";
 import { type Ref, ref, onMounted } from "vue";
 
-
 type QuestionWithIndex = {
   index: number;
   question: string;
@@ -41,8 +40,8 @@ onMounted(async () => {
 <template>
   <div
     :class="[
-      'lg:max-h-full lg:min-w-[600px] w-full h-fit min-w-[300px] lg:max-w-[880px] lg:overflow-hidden',
-      'flex flex-col items-center',
+      'lg:max-h-full lg:min-w-[600px] flex-grow min-w-[300px] lg:max-w-[880px] lg:overflow-hidden',
+      'flex flex-col items-stretch',
       'bg-white lg:border lg:shadow-md lg:rounded-xl',
       'dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70',
     ]"
@@ -66,7 +65,10 @@ onMounted(async () => {
     >
       ❌ Cannot load questions: {{ questionFetchErrors }}. Try refreshing.
     </div>
-    <div v-else class="lg:overflow-y-auto lg:better-scroll w-full p-2 lg:p-8">
+    <div
+      v-else
+      class="lg:overflow-y-auto lg:better-scroll flex-auto p-2 lg:p-8"
+    >
       <AccordionRoot type="single" collapsible>
         <template v-for="item of questions" :key="item.index">
           <AccordionItem
@@ -131,8 +133,8 @@ onMounted(async () => {
                 A. {{ item.answer }}
                 <span
                   class="block text-end text-[0.9rem] leading-[1.6rem] text-sm text-gray-500"
-                  >{{ item.answerTime || "Unknown Time" }}</span
-                >
+                  >{{ item.answerTime || "Unknown Time" }}
+                </span>
               </p>
             </AccordionContent>
           </AccordionItem>

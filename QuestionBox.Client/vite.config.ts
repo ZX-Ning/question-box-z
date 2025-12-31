@@ -13,7 +13,7 @@ const config = JSON5.parse(fs.readFileSync(configFile, "utf8"));
 export default defineConfig({
   define: {
     CONFIG: config,
-    API_URL: "'api/question'"
+    API_URL: "'api/questions'"
   },
   plugins: [vue()],
   css: {

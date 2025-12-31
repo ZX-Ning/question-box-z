@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="h-screen w-screen flex flex-row lg:items-center lg:justify-evenly gap-5">
+  <div class="h-screen w-screen flex flex-col items-center justify-center p-2">
     <slot />
   </div>
 </template>

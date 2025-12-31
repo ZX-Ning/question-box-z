@@ -4,6 +4,6 @@ const lg = {
 };
 
 export function isLg() {
-  console.log(lg)
+  // console.log(lg)
   return window.innerWidth > lg.width && window.innerHeight > lg.height;
 }

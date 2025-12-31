@@ -1,33 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import QuestionsList from "./components/QuestionsList.vue";
-import UserCard from "./components/UserCard.vue";
-import MainLayout from "./layouts/MainLayout.vue";
-import Footer from "./components/SubComponents/Footer.vue";
-import { isLg } from "./utils/Breakpoint";
+import { onMounted } from "vue";
+
+import { useSizeBreakpoint } from "./states";
+import { RouterView } from "vue-router";
+
+const state = useSizeBreakpoint();
 
 onMounted(() => {
-  window.addEventListener("resize", onResize);
+  window.addEventListener("resize", state.update);
 });
-
-const isFooterUnderCard = ref();
-
-function onResize() {
-  isFooterUnderCard.value = isLg();
-}
-
-onMounted(() => {
-  onResize();
-})
-
 </script>
 
 <template>
-  <MainLayout>
-    <UserCard :show-footer="isFooterUnderCard" />
-    <QuestionsList />
-    <template v-if="!isFooterUnderCard">
-      <Footer />
-    </template>
-  </MainLayout>
+  <RouterView />
 </template>
