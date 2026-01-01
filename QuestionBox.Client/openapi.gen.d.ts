@@ -152,9 +152,9 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["QuestionWrapper"];
-                    "text/json": components["schemas"]["QuestionWrapper"];
-                    "application/*+json": components["schemas"]["QuestionWrapper"];
+                    "application/json": components["schemas"]["QuestionAskDto"];
+                    "text/json": components["schemas"]["QuestionAskDto"];
+                    "application/*+json": components["schemas"]["QuestionAskDto"];
                 };
             };
             responses: {
@@ -173,7 +173,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/questions/admin": {
+    "/api/questions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number | string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["QuestionModel"];
+                        "application/json": components["schemas"]["QuestionModel"];
+                        "text/json": components["schemas"]["QuestionModel"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number | string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AnswerQuestionDto"];
+                    "text/json": components["schemas"]["AnswerQuestionDto"];
+                    "application/*+json": components["schemas"]["AnswerQuestionDto"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/questions/all": {
         parameters: {
             query?: never;
             header?: never;
@@ -214,9 +278,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AnswerQuestionDto: {
+            answer: string;
+        };
         LoginRequest: {
             name: string;
             password: string;
+        };
+        QuestionAskDto: {
+            question?: string;
         };
         QuestionDto: {
             /** Format: int32 */
@@ -234,9 +304,6 @@ export interface components {
             answer?: null | string;
             answerTime?: null | string;
             ipAddr?: null | string;
-        };
-        QuestionWrapper: {
-            question?: string;
         };
         StatusDto: {
             isLoggin: boolean;

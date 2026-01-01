@@ -10,14 +10,9 @@ import { Icon } from "@iconify/vue";
 import Spinner from "./BasicComponents/Spinner.vue";
 import axios, { AxiosError } from "axios";
 import { type Ref, ref, onMounted } from "vue";
+import { components } from "../../openapi.gen";
 
-type QuestionDto = {
-  index: number;
-  question: string;
-  answer: string;
-  questionTime: string;
-  answerTime: string;
-};
+type QuestionDto = components["schemas"]["QuestionDto"];
 
 const questions: Ref<QuestionDto[] | null> = ref(null);
 const questionFetchErrors: Ref<string | null> = ref(null);

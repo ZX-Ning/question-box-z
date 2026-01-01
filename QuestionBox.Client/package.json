@@ -1,10 +1,11 @@
 {
     "name": "questionbox-client",
     "private": true,
-    "version": "Alpha-0.0.1",
+    "version": "experimental",
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "gen-schema": "openapi-typescript http://127.0.0.1:50001/openapi/v1.json -o ./openapi.gen.d.ts",
         "build": "vue-tsc -b && vite build",
         "preview": "vite preview"
     },
