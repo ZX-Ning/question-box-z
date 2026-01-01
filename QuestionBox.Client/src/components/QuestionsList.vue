@@ -11,7 +11,7 @@ import Spinner from "./BasicComponents/Spinner.vue";
 import axios, { AxiosError } from "axios";
 import { type Ref, ref, onMounted } from "vue";
 
-type QuestionWithIndex = {
+type QuestionDto = {
   index: number;
   question: string;
   answer: string;
@@ -19,12 +19,13 @@ type QuestionWithIndex = {
   answerTime: string;
 };
 
-const questions: Ref<QuestionWithIndex[] | null> = ref(null);
+const questions: Ref<QuestionDto[] | null> = ref(null);
 const questionFetchErrors: Ref<string | null> = ref(null);
+const questionsUrl = API_URL + "questions";
 
 async function getQuestions() {
   try {
-    questions.value = (await axios.get(API_URL)).data;
+    questions.value = (await axios.get(questionsUrl)).data;
   } catch (err) {
     if (err instanceof AxiosError) {
       questionFetchErrors.value = err.message;

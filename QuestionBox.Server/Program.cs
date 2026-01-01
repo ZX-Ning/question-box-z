@@ -45,6 +45,7 @@ static class Program {
             options.ExpireTimeSpan = TimeSpan.FromHours(1);
             options.SlidingExpiration = true;
             options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
             options.Events.OnRedirectToLogin = context => {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return Task.CompletedTask;
