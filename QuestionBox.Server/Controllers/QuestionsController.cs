@@ -13,7 +13,6 @@ public sealed class QuestionsController(
     ILogger<QuestionsController> logger,
     QuestionDbContext dbContext
 ) : ControllerBase {
-    public record struct QuestionWrapper(string question);
     public record struct QuestionDto(
         int index,
         string question,
@@ -21,7 +20,6 @@ public sealed class QuestionsController(
         string questionTime,
         string? answerTime
     );
-
     [HttpGet]
     public async Task<List<QuestionDto>> Get() {
         List<QuestionModel> data = await dbContext.questions
@@ -40,8 +38,9 @@ public sealed class QuestionsController(
         return questions;
     }
 
+    public record struct QuestionAskDto(string question);
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] QuestionWrapper question) {
+    public async Task<IActionResult> Post([FromBody] QuestionAskDto question) {
         var date = DateTime.Now;
         string ip;
         if (HttpContext.Request.Headers.TryGetValue("Cf-Connecting-Ip", out var x)) {
@@ -59,10 +58,49 @@ public sealed class QuestionsController(
         return Ok();
     }
 
-    [HttpGet("admin")]
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<QuestionModel>> GetQuestionWithId([FromRoute] int id) {
+        var data = await dbContext.questions.SingleOrDefaultAsync(q => q.Id == id);
+        if (data is null) {
+            return NotFound();
+        }
+        return Ok(data);
+    }
+
+    public record AnswerQuestionDto(string answer);
+    [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> answerQuestion(
+        [FromBody] AnswerQuestionDto answer, [FromRoute] int id
+    ) {
+        int rowsAffected = await dbContext.questions
+            .Where(q => q.Id == id)
+            .ExecuteUpdateAsync(setter => {
+                setter.SetProperty(q => q.Answer, answer.answer);
+                setter.SetProperty(q => q.AnswerTime, DateTime.Now.ToString("yyyy-MM-dd"));
+            });
+        if (rowsAffected == 0) {
+            return NotFound();
+        }
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> deleteQuestion([FromRoute] int id) {
+        int rowsAffected = await dbContext.questions
+            .Where(q => q.Id == id)
+            .ExecuteDeleteAsync();
+        if (rowsAffected == 0) {
+            return NotFound();
+        }
+        return Ok();
+    }
+
+    [HttpGet("all")]
     [Authorize(Roles = "Admin")]
     public async Task<List<QuestionModel>> GetAllQuestions() {
         return await dbContext.questions.ToListAsync();
     }
-
 }
