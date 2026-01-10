@@ -20,7 +20,7 @@ public class AuthController(
         }
         // Authenticated:
         List<Claim> claims = [
-            new (ClaimTypes.Name, "loginRequest.name"),
+            new (ClaimTypes.Name, loginRequest.name),
             new (ClaimTypes.Role, "Admin")
         ];
         ClaimsIdentity identity = new(claims, scheme);
