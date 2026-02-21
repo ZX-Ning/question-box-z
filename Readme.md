@@ -3,7 +3,7 @@
 A full-stack personal Q&A site. 
 This is a full-stack web exercise project for me. 
 
-Demo site: https://q.zxning.com/ (Currently down for maintenance)
+Demo site: https://q.zxning.com
 
 ### Screenshots:
 <img width="2455" height="1283" alt="image" src="https://github.com/user-attachments/assets/a0aeb76f-6a4d-4995-8a9b-6f388347c7dc" />
