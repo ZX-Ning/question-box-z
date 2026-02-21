@@ -6,7 +6,6 @@ cd QuestionBox.Server
 dotnet restore
 dotnet publish -f net10.0 -o ../build
 cd ..
-cp -r db build/
 
 cd QuestionBox.Client
 pnpm install

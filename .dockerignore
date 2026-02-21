@@ -1,6 +1,5 @@
-.git
 _debug*
-db/*
+db/
 # Logs
 logs
 *.log
@@ -20,4 +19,4 @@ QuestionBox.Server/bin
 QuestionBox.Server/obj
 .pnpm-store
 
-build/
+build
