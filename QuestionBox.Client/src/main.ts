@@ -1,23 +1,23 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./css/main.postcss";
-import Index from "./pages/Index.vue";
+// import Index from "./pages/Index.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { createPinia } from "pinia";
-import Login from "./pages/Login.vue";
+// import Login from "./pages/Login.vue";
 import axios from "axios";
-import Admin from "./pages/Admin.vue";
+// import Admin from "./pages/Admin.vue";
 import { components } from "../openapi.gen";
 import { type Configs } from "./inject";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: "/", component: Index },
-    { path: "/login", component: Login },
+    { path: "/", component: () => import("./pages/Index.vue") },
+    { path: "/login", component: () => import("./pages/Login.vue") },
     {
       path: "/admin",
-      component: Admin,
+      component: () => import("./pages/Admin.vue"),
       meta: { requiresAuth: true },
     },
     {

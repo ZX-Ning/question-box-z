@@ -1,4 +1,4 @@
-FROM ghcr.io/zx-ning/web-dev-env:main AS builder
+FROM ghcr.io/zx-ning/web-dev-env AS builder
 
 WORKDIR /app
 COPY . .
