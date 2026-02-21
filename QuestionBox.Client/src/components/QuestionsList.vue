@@ -16,11 +16,10 @@ type QuestionDto = components["schemas"]["QuestionDto"];
 
 const questions: Ref<QuestionDto[] | null> = ref(null);
 const questionFetchErrors: Ref<string | null> = ref(null);
-const questionsUrl = API_URL + "questions";
 
 async function getQuestions() {
   try {
-    questions.value = (await axios.get(questionsUrl)).data;
+    questions.value = (await axios.get("api/questions")).data;
   } catch (err) {
     if (err instanceof AxiosError) {
       questionFetchErrors.value = err.message;

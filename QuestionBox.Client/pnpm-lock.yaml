@@ -7,22 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      axios:
-        specifier: ^1.7.3
-        version: 1.7.3
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
-      pinia:
-        specifier: ^3.0.4
-        version: 3.0.4(typescript@5.5.4)(vue@3.4.36(typescript@5.5.4))
-      vue:
-        specifier: ^3.4.31
-        version: 3.4.36(typescript@5.5.4)
-      vue-router:
-        specifier: ^4.6.4
-        version: 4.6.4(vue@3.4.36(typescript@5.5.4))
     devDependencies:
       '@iconify/vue':
         specifier: ^4.1.2
@@ -42,9 +26,15 @@ importers:
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.20(postcss@8.4.41)
+      axios:
+        specifier: ^1.7.3
+        version: 1.7.3
       openapi-typescript:
         specifier: ^7.10.1
         version: 7.10.1(typescript@5.5.4)
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.5.4)(vue@3.4.36(typescript@5.5.4))
       postcss:
         specifier: ^8.4.40
         version: 8.4.41
@@ -60,6 +50,12 @@ importers:
       vite:
         specifier: ^5.3.4
         version: 5.4.0(@types/node@22.1.0)
+      vue:
+        specifier: ^3.4.31
+        version: 3.4.36(typescript@5.5.4)
+      vue-router:
+        specifier: ^4.6.4
+        version: 4.6.4(vue@3.4.36(typescript@5.5.4))
       vue-tsc:
         specifier: ^2.0.24
         version: 2.0.29(typescript@5.5.4)
@@ -799,11 +795,6 @@ packages:
 
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
-
-  json5@2.2.3:
-    resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
-    engines: {node: '>=6'}
-    hasBin: true
 
   lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
@@ -1915,8 +1906,6 @@ snapshots:
       argparse: 2.0.1
 
   json-schema-traverse@1.0.0: {}
-
-  json5@2.2.3: {}
 
   lilconfig@2.1.0: {}
 

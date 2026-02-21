@@ -2,32 +2,39 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+
+using QuestionBox.Auth;
+
 namespace QuestionBox.Controllers;
 
 [ApiController]
 [Route("api/auth")]
 public class AuthController(
     ILogger<AuthController> logger,
-    LoginChecker loginChecker
+    ILoginChecker loginChecker
 ) : ControllerBase {
-    public record LoginRequest(string name, string password);
+    public record struct LoginRequest(string name, string password);
     string scheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest) {
-        if (!loginChecker.check(loginRequest.name, loginRequest.password)) {
+        var role = loginChecker.check(loginRequest.name, loginRequest.password);
+        if (role != Role.Admin) {
             return Unauthorized(new { Message = "Incorrect credential" });
         }
+        var roleName = Enum.GetName(role)!;
+
         // Authenticated:
-        List<Claim> claims = [
-            new (ClaimTypes.Name, loginRequest.name),
-            new (ClaimTypes.Role, "Admin")
-        ];
-        ClaimsIdentity identity = new(claims, scheme);
-        AuthenticationProperties properties = new() {
-            IsPersistent = true,
-        };
-        await HttpContext.SignInAsync(scheme, new ClaimsPrincipal(identity), properties);
+        ClaimsIdentity identity = new(
+            [
+                new (ClaimTypes.Name, loginRequest.name),
+                new (ClaimTypes.Role, roleName)
+            ],
+            scheme
+        );
+        await HttpContext.SignInAsync(
+            scheme, new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = true }
+        );
         logger.LogInformation($"User: {loginRequest.name} logged in");
         return Ok();
     }

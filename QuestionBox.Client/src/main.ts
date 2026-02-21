@@ -7,6 +7,8 @@ import { createPinia } from "pinia";
 import Login from "./pages/Login.vue";
 import axios from "axios";
 import Admin from "./pages/Admin.vue";
+import { components } from "../openapi.gen";
+import { type Configs } from "./inject";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -29,11 +31,11 @@ const router = createRouter({
 async function checkLogin() {
   let responds = null;
   try {
-    responds = await axios.get(API_URL + "auth/status");
+    responds = await axios.get("api/auth/status");
   } catch (e) {
     console.log(e);
   }
-  return (responds != null) && responds.data["isLoggin"];
+  return responds != null && responds.data["isLoggin"];
 }
 
 router.beforeEach(async (to, _) => {
@@ -46,4 +48,13 @@ router.beforeEach(async (to, _) => {
   }
 });
 
-createApp(App).use(router).use(createPinia()).mount("#app");
+(async () => {
+  const config: components["schemas"]["ConfigDto"] = (
+    await axios.get("api/config")
+  ).data;
+  createApp(App)
+    .use(router)
+    .use(createPinia())
+    .provide<Configs>("configs", config)
+    .mount("#app");
+})();

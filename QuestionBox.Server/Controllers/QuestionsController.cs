@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestionBox.Data;
 using QuestionBox.Models;
 using System.Text.Json;
+using QuestionBox.Auth;
 
 namespace QuestionBox.Controllers;
 
@@ -59,7 +60,7 @@ public sealed class QuestionsController(
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(Role.Admin))]
     public async Task<ActionResult<QuestionModel>> GetQuestionWithId([FromRoute] int id) {
         var data = await dbContext.questions.SingleOrDefaultAsync(q => q.Id == id);
         if (data is null) {
@@ -68,9 +69,9 @@ public sealed class QuestionsController(
         return Ok(data);
     }
 
-    public record AnswerQuestionDto(string answer);
+    public record struct AnswerQuestionDto(string answer);
     [HttpPatch("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(Role.Admin))]
     public async Task<IActionResult> answerQuestion(
         [FromBody] AnswerQuestionDto answer, [FromRoute] int id
     ) {
@@ -87,7 +88,7 @@ public sealed class QuestionsController(
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(Role.Admin))]
     public async Task<IActionResult> deleteQuestion([FromRoute] int id) {
         int rowsAffected = await dbContext.questions
             .Where(q => q.Id == id)
@@ -99,7 +100,7 @@ public sealed class QuestionsController(
     }
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(Role.Admin))]
     public async Task<List<QuestionModel>> GetAllQuestions() {
         return await dbContext.questions.ToListAsync();
     }

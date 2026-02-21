@@ -13,7 +13,7 @@ async function onSubmit() {
   sendingState.value = "Pending";
   try {
     const msg = props.message;
-    await axios.post(API_URL, { question: msg });
+    await axios.post("api/questions", { question: msg });
     sendingState.value = "Success";
   } catch (err) {
     sendingState.value = "Error";

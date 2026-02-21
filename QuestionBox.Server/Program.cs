@@ -4,34 +4,39 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.FileProviders;
 using QuestionBox.Data;
-
+using QuestionBox.Auth;
 static class Program {
     static WebApplicationBuilder builder(string[] args) {
-        var rootDir = Directory.GetParent(Directory.GetCurrentDirectory())!.ToString();
+        var builder = WebApplication.CreateBuilder(args);
 
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
-            Args = args,
-            WebRootPath = Path.Combine(rootDir, "dist"),
-        });
+        // set up root dir
+        var rootDir = Directory.GetCurrentDirectory()!;
+        if (builder.Environment.IsDevelopment()) {
+            rootDir = Directory.GetParent(Directory.GetCurrentDirectory())!.ToString();
+        }
+
+        // set up logger
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
+        ILogger logger = builder.Services
+                .BuildServiceProvider().GetService<ILoggerFactory>()!.CreateLogger("Builder");
+
+        logger.LogInformation($"Rootdir: {rootDir}");
 
         builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(rootDir));
         builder.Configuration.AddJsonFile(
             Path.Combine(rootDir, "AppConfig.jsonc"), optional: false, reloadOnChange: true
         );
-        builder.Services.AddSingleton<LoginChecker>();
+
+        builder.Services.AddSingleton<ILoginChecker, SimpleLoginChecker>();
 
         var config = builder.Configuration;
-        ILogger logger = builder.Services
-                        .BuildServiceProvider().GetService<ILoggerFactory>()!.CreateLogger("Builder");
-
-        if (config.GetSection("Postgres:UsingPg").Get<bool>()) {
+        if (config.GetSection("Postgres:usingPg").Get<bool>()) {
             logger.LogInformation("Using configured Postgress database");
             builder.Services.AddDbContext<QuestionDbContext, QuestionsPostgresDbContext>();
         }
         else {
-            logger.LogInformation("Using sqlite database with configured file path");
+            logger.LogInformation("Using sqlite database with configured file path: " + config["SqlitePath"]);
             builder.Services.AddDbContext<QuestionDbContext, QuestionsSqliteDbContext>();
         }
 
@@ -70,18 +75,13 @@ static class Program {
                             .AllowCredentials();
                     });
             });
-            builder.WebHost.UseUrls(config["ServerDevUrl"]!);
             builder.Services.AddOpenApi();
-        }
-        if (builder.Environment.IsProduction()) {
-            builder.WebHost.UseUrls(config["ServerProductionUrl"]!);
         }
         return builder;
     }
     public static void Main(string[] args) {
         WebApplication app = builder(args).Build();
         app.MapControllers();
-        app.UseCors("default");
 
         using (var scope = app.Services.CreateScope()) {
             var db = scope.ServiceProvider.GetRequiredService<QuestionDbContext>();
@@ -90,6 +90,9 @@ static class Program {
 
         if (app.Environment.IsDevelopment()) {
             app.MapOpenApi();
+            app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+                string.Join("\n", endpointSources.SelectMany(source => source.Endpoints)));
+            app.UseCors("default");
         }
         if (app.Environment.IsProduction()) {
             app.UseDefaultFiles();
@@ -97,7 +100,6 @@ static class Program {
         }
         app.UseAuthentication();
         app.UseAuthorization();
-        app.Logger.LogInformation("Starting Server, Environment: " + app.Environment.EnvironmentName);
         app.Run();
     }
 }

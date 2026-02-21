@@ -38,7 +38,7 @@ public sealed class QuestionsSqliteDbContext(
 public sealed class QuestionsPostgresDbContext(IConfiguration config) : QuestionDbContext {
     public override required DbSet<QuestionModel> questions { get; set; }
     private record struct PgConfig(
-        bool UsingPg,
+        bool usingPg,
         string server,
         int port,
         string user,

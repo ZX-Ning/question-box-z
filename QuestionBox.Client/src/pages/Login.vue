@@ -20,7 +20,7 @@ const goBack = () => {
 
 const onLogin = async () => {
   loginResult.value = "Pending";
-  const loginUrl = API_URL + "auth/login";
+  const loginUrl =  "api/auth/login";
   try {
     console.log(JSON.stringify(credential.value));
     await axios.post(loginUrl, credential.value);

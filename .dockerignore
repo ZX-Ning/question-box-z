@@ -19,3 +19,5 @@ dist
 QuestionBox.Server/bin
 QuestionBox.Server/obj
 .pnpm-store
+
+build/

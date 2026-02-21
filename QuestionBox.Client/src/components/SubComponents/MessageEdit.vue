@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, inject } from "vue";
 import SendingDialog from "./SendingDialog.vue";
+import { type Configs } from "../../inject";
 
-const charaterLimit = CONFIG["QuestionLengthLimit"];
 const interval = {};
 let changedSinceLastSave = false;
 const message = ref("");
 const lastSave = ref("--");
 const currenrLength = computed(() => message.value.length);
+
+const config = inject<Configs>("configs")!;
+
+const charaterLimit = +config.questionLengthLimit!;
 
 onMounted(() => {
   const msg = localStorage.getItem("message");
@@ -36,7 +40,7 @@ function autoSave() {
   if (changedSinceLastSave) {
     localStorage.setItem("message", message.value);
     const date = new Date();
-    lastSave.value = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    lastSave.value = date.toLocaleTimeString();
     changedSinceLastSave = false;
   }
 }

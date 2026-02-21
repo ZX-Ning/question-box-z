@@ -1,19 +1,18 @@
+// comments are allowed 
 {
-    "ServerDevUrl": "http://localhost:50001/",
-    "ServerProductionUrl": "http://localhost:8081",
     // sqlite db path is UsingPg is false
     "SqlitePath": "./db/data.db",
     "Postgres": {
         // set to true to use pg, otherwise sqlite will be used.
-        "UsingPg": false,
+        "usingPg": false,
         "server": "localhost",
         "port": 5432,
         "user": "questionbox_server",
-        "password": "7654321@",
+        "password": "",
         "db": "question_box"
     },
-    "QuestionLengthLimit": 600,
-    "User": {
+    "frontend": {
+        "questionLengthLimit": 600,
         "name": "ZX NING",
         "avatar": "https://www.zxning.com/avatar.jpg",
         "description": "This is a demo of my personal Q&A box. \n这是我的测试用个人提问箱"

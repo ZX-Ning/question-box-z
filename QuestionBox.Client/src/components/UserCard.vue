@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import MessageEdit from "./SubComponents/MessageEdit.vue";
-const props = defineProps(["showFooter"]);
-const user = CONFIG["User"];
+
+import { inject } from "vue";
+import { Configs } from "../inject";
+
+// const props = defineProps(["showFooter"]);
+const user = inject<Configs>("configs")!;
 </script>
 
 <template>
-  <div class="flex flex-col lg:max-h-full lg:min-w-[30%] lg:max-w-[50%] justify-between">
+  <div
+    class="flex flex-col lg:max-h-full lg:min-w-[30%] lg:max-w-[50%] justify-between"
+  >
     <div
       :class="[
         'flex-auto lg:max-w-[700px] p-6',
@@ -20,10 +26,9 @@ const user = CONFIG["User"];
       />
       <p class="text-2xl font-medium">{{ user.name }}</p>
       <p class="text-[0.96rem] italic whitespace-pre-line">
-          {{ user.description }}
+        {{ user.description }}
       </p>
       <MessageEdit />
     </div>
   </div>
 </template>
-
